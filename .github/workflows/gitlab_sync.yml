@@ -10,25 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0  # 确保检出完整的历史记录
-
     - name: Install SSH key
-      uses: webfactory/ssh-agent@v0.5.0
+      uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
-
-    - name: Add GitLab to known hosts
-      run: ssh-keyscan -H gitlab.eduxiji.net >> ~/.ssh/known_hosts
-
-    - name: Set up Git
+    
+    - name: Add GitLab server to known hosts
       run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-    - name: Push to GitLab
+        mkdir -p ~/.ssh
+        ssh-keyscan -p 18002 58.213.25.72 >> ~/.ssh/known_hosts
+    
+    - name: Configure SSH
       run: |
-        git remote add gitlab ssh://git@58.213.25.72:18002/nscscc2024/2024595.git
-        git push gitlab --force --all
+        echo "Host 58.213.25.72" >> ~/.ssh/config
+        echo "  Port 18002" >> ~/.ssh/config
+        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+    
+    - name: Test SSH connection
+      run: ssh -T -p 18002 git@58.213.25.72
+    
+    - name: Add GitLab remote
+      run: git remote add gitlab ssh://git@58.213.25.72:18002/nscscc2024/2024595.git -v
