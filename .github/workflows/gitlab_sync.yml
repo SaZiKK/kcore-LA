@@ -1,0 +1,34 @@
+name: Sync to GitLab
+
+on:
+  push:
+    branches:
+      - '**'  # 监听所有分支的更新
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # 确保检出完整的历史记录
+
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.5.0
+      with:
+        ssh-private-key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
+
+    - name: Add GitLab to known hosts
+      run: ssh-keyscan -H gitlab.eduxiji.net >> ~/.ssh/known_hosts
+
+    - name: Set up Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Push to GitLab
+      run: |
+        git remote add gitlab ssh://git@58.213.25.72:18002/nscscc2024/2024595.git
+        git push gitlab --force --all
