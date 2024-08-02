@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # 获取所有历史记录和分支
+
     - name: Install SSH key
       uses: webfactory/ssh-agent@v0.8.0
       with:
@@ -30,4 +35,16 @@ jobs:
       run: ssh -T -p 18002 git@58.213.25.72
     
     - name: Add GitLab remote
-      run: git remote add gitlab ssh://git@58.213.25.72:18002/nscscc2024/2024595.git -v
+      run: git remote add gitlab ssh://git@58.213.25.72:18002/nscscc2024/2024595.git
+    
+    - name: Push to GitLab
+      run: |
+        git push --all gitlab
+        git push --tags gitlab
+
+    - name: Check current directory and Git status
+      run: |
+        pwd
+        ls -la
+        git status
+        git remote -v
