@@ -1,7 +1,7 @@
 module EX (
     input  wire         clk,
     input  wire         rst,
-    output  wire         stall_current_stage,
+    output wire         stall_current_stage,
     input  wire         stall_next_stage,
 
     input  wire [31: 0] alu_src1,
@@ -32,6 +32,7 @@ module EX (
     output wire [31: 0] alu_result
 
 );
+    wire [31: 0] data_ram_vaddr;
 
     assign stall_current_stage = 1'b0; // EX不停
 

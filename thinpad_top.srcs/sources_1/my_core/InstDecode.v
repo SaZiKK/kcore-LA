@@ -31,6 +31,9 @@ module ID(
     input  wire         rf_we_wb    ,
     input  wire [31: 0] rf_wdata_wb ,
 
+    input  wire mem_load_ex,
+    input  wire mem_load_mem,
+
     output wire [31: 0] pc_out,
 
     output wire [31: 0] data_ram_wdata_out,
@@ -169,14 +172,19 @@ module ID(
     wire [31: 0] br_offs;
     wire [31: 0] jirl_offs;
 
-    wire [4: 0] dest;
-    wire [31:0] rj_value;
-    wire [31:0] rkd_value;
+    wire [ 4: 0] dest;
+    wire [31: 0] rj_value;
+    wire [31: 0] rkd_value;
+    wire [31: 0] data_ram_wdata;
+
+    wire [ 3: 0] data_ram_be;
+    wire         data_ram_ce;
+    wire         data_ram_oe;
+    wire         data_ram_we;
 
 
 /* =========== connect signals =========== */    
 
-    assign stall_current_stage = 1'b0; //todo 流水暂时不停
 
     // load msg from inst
     assign op_31_26 = inst[31:26];
@@ -202,26 +210,27 @@ module ID(
     decoder_5_32 u_dec3(.in(op_19_15 ), .out(op_19_15_d ));
 
     // instruction decode ( op -> specifc inst )
-    assign inst_add_w  = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h00];
-    assign inst_sub_w  = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h02];
-    assign inst_slt    = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h04];
-    assign inst_sltu   = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h05];
-    assign inst_nor    = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h08];
-    assign inst_and    = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h09];
-    assign inst_or     = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h0a];
-    assign inst_xor    = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h0b];
-    assign inst_slli_w = op_31_26_d[6'h00] & op_25_22_d[4'h1] & op_21_20_d[2'h0] & op_19_15_d[5'h01];
-    assign inst_srli_w = op_31_26_d[6'h00] & op_25_22_d[4'h1] & op_21_20_d[2'h0] & op_19_15_d[5'h09];
-    assign inst_srai_w = op_31_26_d[6'h00] & op_25_22_d[4'h1] & op_21_20_d[2'h0] & op_19_15_d[5'h11];
-    assign inst_addi_w = op_31_26_d[6'h00] & op_25_22_d[4'ha];
-    assign inst_ld_w   = op_31_26_d[6'h0a] & op_25_22_d[4'h2];
-    assign inst_st_w   = op_31_26_d[6'h0a] & op_25_22_d[4'h6];
-    assign inst_jirl   = op_31_26_d[6'h13];
-    assign inst_b      = op_31_26_d[6'h14];
-    assign inst_bl     = op_31_26_d[6'h15];
-    assign inst_beq    = op_31_26_d[6'h16];
-    assign inst_bne    = op_31_26_d[6'h17];
-    assign inst_lu12i_w= op_31_26_d[6'h05] & ~inst[25];
+    assign inst_add_w       = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h00];
+    assign inst_sub_w       = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h02];
+    assign inst_slt         = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h04];
+    assign inst_sltu        = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h05];
+    assign inst_nor         = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h08];
+    assign inst_and         = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h09];
+    assign inst_or          = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h0a];
+    assign inst_xor         = op_31_26_d[6'h00] & op_25_22_d[4'h0] & op_21_20_d[2'h1] & op_19_15_d[5'h0b];
+    assign inst_slli_w      = op_31_26_d[6'h00] & op_25_22_d[4'h1] & op_21_20_d[2'h0] & op_19_15_d[5'h01];
+    assign inst_srli_w      = op_31_26_d[6'h00] & op_25_22_d[4'h1] & op_21_20_d[2'h0] & op_19_15_d[5'h09];
+    assign inst_srai_w      = op_31_26_d[6'h00] & op_25_22_d[4'h1] & op_21_20_d[2'h0] & op_19_15_d[5'h11];
+    assign inst_addi_w      = op_31_26_d[6'h00] & op_25_22_d[4'ha];
+    assign inst_ld_w        = op_31_26_d[6'h0a] & op_25_22_d[4'h2];
+    assign inst_st_w        = op_31_26_d[6'h0a] & op_25_22_d[4'h6];
+    assign inst_jirl        = op_31_26_d[6'h13];
+    assign inst_b           = op_31_26_d[6'h14];
+    assign inst_bl          = op_31_26_d[6'h15];
+    assign inst_beq         = op_31_26_d[6'h16];
+    assign inst_bne         = op_31_26_d[6'h17];
+    assign inst_lu12i_w     = op_31_26_d[6'h05] & ~inst[25];
+    assign inst_pcaddu12i_w = op_31_26_d[6'h07] & ~inst[25];
 
     // identify different alu operations for each instruction
     assign alu_op[ 0] = inst_add_w  |
@@ -309,7 +318,7 @@ module ID(
                             rf_wdata_wb : 
                         rf_rdata1 :
                     rf_rdata1;
-    assign rkd_value = ~src2_is_imm & (rf_raddr2 != 0) ? 
+    assign rkd_value = ~src2_is_imm | inst_st_w & (rf_raddr2 != 0) ? 
                         rf_we_out & (rf_waddr_out == rf_raddr2) ? 
                             rf_wdata_ex :
                         rf_we_mem & (rf_waddr_mem == rf_raddr2) ?
@@ -336,6 +345,9 @@ module ID(
     assign data_ram_oe    = mem_re;
     assign data_ram_we    = mem_we;
     assign data_ram_wdata = rkd_value;
+
+    assign stall_current_stage = (mem_load_ex & (~src2_is_imm | inst_st_w) & (rf_waddr_out == rf_raddr2)) |
+                                 (mem_load_mem & (~src2_is_imm | inst_st_w) & (rf_waddr_mem == rf_raddr2)); 
 
 IDEX idex(
     .clk                 ( clk                 ),

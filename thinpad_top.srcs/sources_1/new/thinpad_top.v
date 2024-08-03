@@ -173,7 +173,7 @@ module thinpad_top(
         .stall_next_stage    ( stall_id           ),  // input
         .pc                  ( pc                 ),  // output
         .inst_addr           ( inst_ram_vaddr     ),  // output
-        .inst                ( inst_ram_rdata     ),  // output
+        .inst                ( inst_ram_rdata     ),  // input
         .inst_out            ( inst               )   // output
     );   
    
@@ -185,7 +185,8 @@ module thinpad_top(
         .stall_current_stage ( stall_id           ),  // output
         .stall_next_stage    ( stall_mem          ),  // input
             
-        .pc                  ( pc_id              ),  // input
+        .pc                  ( pc                 ),  // input
+        .pc_out              ( pc_id              ),  // output
         .inst                ( inst               ),  // input
        
         .branch_flag         ( branch_flag        ),  // output
@@ -210,6 +211,9 @@ module thinpad_top(
         .rf_waddr_wb         ( reg_waddr_wb      ),
         .rf_we_wb            ( reg_we_wb         ),
         .rf_wdata_wb         ( reg_wdata_wb      ),
+
+        .mem_load_ex         ( data_ram_oe_id    ),  // input
+        .mem_load_mem        ( data_ram_oe_ex    ),  // input
     
         .rf_waddr_out        ( reg_waddr_id       ),  // output
         .rf_we_out           ( reg_we_id          ),  // output
@@ -284,7 +288,8 @@ module thinpad_top(
         .data_ram_oe_v       ( data_ram_oe        ),  // output
         .data_ram_we_v       ( data_ram_we        ),  // output
    
-        .data_ram_rdata      ( data_ram_rdata_mem ),  // output
+        .data_ram_rdata      ( data_ram_rdata     ),  // input
+        .data_ram_rdata_out  ( data_ram_rdata_mem ),  // output
         .data_ram_vaddr_out  ( data_ram_vaddr_mem ),  // output
         .data_ram_wdata_out  ( data_ram_wdata_mem ),  // output
         .data_ram_be_out     ( data_ram_be_mem    ),  // output
