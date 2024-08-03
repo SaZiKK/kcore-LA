@@ -37,7 +37,7 @@ module MEM(
     output wire [31: 0] alu_result_out
 );
 
-    assign stall_current_stage = 0; // 访存流水不停
+    assign stall_current_stage = 1'b0; // 访存流水不停
 
     // 不做处理
     assign data_ram_vaddr_v  = data_ram_vaddr;

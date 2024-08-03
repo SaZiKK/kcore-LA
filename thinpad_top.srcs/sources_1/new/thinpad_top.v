@@ -87,7 +87,7 @@ module thinpad_top(
 
     wire [31: 0] alu_src1_id;
     wire [31: 0] alu_src2_id;
-    wire [ 5: 0] alu_op_id;
+    wire [11: 0] alu_op_id;
     
     wire         branch_flag;
     wire [31: 0] branch_addr;
@@ -132,6 +132,8 @@ module thinpad_top(
 /* =========== connect signals =========== */
 
     assign clk = clk_50M;
+    
+    assign base_ram_data  = 32'bz; // 输出
 
     MMU mmu  (
         // virtual interface marked with "!" 
@@ -170,9 +172,9 @@ module thinpad_top(
         .branch_addr         ( branch_addr        ),  // input
         .stall_next_stage    ( stall_id           ),  // input
         .pc                  ( pc                 ),  // output
-        .inst_addr           ( pc_id              ),  // output
-        .inst                ( inst               ),  // output
-        .inst_out            ( inst_ram_vaddr     )   // output
+        .inst_addr           ( inst_ram_vaddr     ),  // output
+        .inst                ( inst_ram_rdata     ),  // output
+        .inst_out            ( inst               )   // output
     );   
    
    // 译码
@@ -189,18 +191,28 @@ module thinpad_top(
         .branch_flag         ( branch_flag        ),  // output
         .branch_addr         ( branch_addr        ),  // output
     
-        .reg_rdata1          ( reg_rdata1         ),  // input
-        .reg_rdata2          ( reg_rdata2         ),  // input
-    
-        .reg_raddr1          ( reg_raddr1         ),  // output
-        .reg_raddr2          ( reg_raddr2         ),  // output
+        .rf_rdata1           ( reg_rdata1         ),  // input
+        .rf_rdata2           ( reg_rdata2         ),  // input
+      
+        .rf_raddr1           ( reg_raddr1         ),  // output
+        .rf_raddr2           ( reg_raddr2         ),  // output
     
         .alu_src1_out        ( alu_src1_id        ),  // output
         .alu_src2_out        ( alu_src2_id        ),  // output
         .alu_op_out          ( alu_op_id          ),  // output
+
+        .rf_wdata_ex         ( result            ),
+
+        .rf_waddr_mem        ( reg_waddr_ex      ),
+        .rf_we_mem           ( reg_we_ex         ),
+        .rf_wdata_mem        ( result_ex         ),
+
+        .rf_waddr_wb         ( reg_waddr_wb      ),
+        .rf_we_wb            ( reg_we_wb         ),
+        .rf_wdata_wb         ( reg_wdata_wb      ),
     
-        .reg_waddr_out       ( reg_waddr_id       ),  // output
-        .reg_we_out          ( reg_we_id          ),  // output
+        .rf_waddr_out        ( reg_waddr_id       ),  // output
+        .rf_we_out           ( reg_we_id          ),  // output
  
         .data_ram_wdata_out  ( data_ram_wdata_id  ),  // output
         .data_ram_be_out     ( data_ram_be_id     ),  // output
@@ -346,15 +358,6 @@ always@(posedge clk_10M or posedge reset_of_clk10M) begin
         // Your Code
     end
 end
-
-// 不使用内存、串口时，禁用其使能信号
-assign base_ram_ce_n = 1'b1;
-assign base_ram_oe_n = 1'b1;
-assign base_ram_we_n = 1'b1;
-
-assign ext_ram_ce_n = 1'b1;
-assign ext_ram_oe_n = 1'b1;
-assign ext_ram_we_n = 1'b1;
 
 // 数码管连接关系示意图，dpy1同理
 // p=dpy0[0] // ---a---

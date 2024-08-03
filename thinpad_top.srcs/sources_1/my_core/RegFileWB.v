@@ -12,7 +12,7 @@ module RegFileWB(
     output wire         stall_current_stage
 );
 
-    assign stall_current_stage = 0; // WB不停
+    assign stall_current_stage = 1'b0; // WB不停
 
     assign reg_we_out = reg_we;
     assign reg_waddr_out = reg_waddr;

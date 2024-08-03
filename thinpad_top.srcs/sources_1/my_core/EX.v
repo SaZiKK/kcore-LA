@@ -6,7 +6,7 @@ module EX (
 
     input  wire [31: 0] alu_src1,
     input  wire [31: 0] alu_src2,
-    input  wire [ 5: 0] alu_op,
+    input  wire [11: 0] alu_op,
 
     output wire [31: 0] alu_result_out,
 
@@ -33,7 +33,7 @@ module EX (
 
 );
 
-    assign stall_current_stage = 0; // EX不停
+    assign stall_current_stage = 1'b0; // EX不停
 
     alu alu(
         .alu_op     ( alu_op         ),

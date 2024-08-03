@@ -12,16 +12,24 @@ module ID(
 
     output wire [31: 0] alu_src1_out,
     output wire [31: 0] alu_src2_out,
-    output wire [ 5: 0] alu_op_out,
+    output wire [11: 0] alu_op_out,
 
-    output wire [ 4: 0] reg_raddr1,
-    input wire  [31: 0] reg_rdata1,
+    output wire [ 4: 0] rf_raddr1,
+    input wire  [31: 0] rf_rdata1,
 
-    output wire [ 4: 0] reg_raddr2,
-    input wire  [31: 0] reg_rdata2,
+    output wire [ 4: 0] rf_raddr2,
+    input wire  [31: 0] rf_rdata2,
 
-    output wire [ 4: 0] reg_waddr_out,
-    output wire         reg_we_out,
+    output wire [ 4: 0] rf_waddr_out,
+    output wire         rf_we_out,
+
+    input  wire [31: 0] rf_wdata_ex ,
+    input  wire [ 4: 0] rf_waddr_mem,
+    input  wire         rf_we_mem   ,
+    input  wire [31: 0] rf_wdata_mem,
+    input  wire [ 4: 0] rf_waddr_wb ,
+    input  wire         rf_we_wb    ,
+    input  wire [31: 0] rf_wdata_wb ,
 
     output wire [31: 0] pc_out,
 
@@ -95,7 +103,9 @@ module ID(
     wire        inst_sltu;
     wire        inst_nor;
     wire        inst_and;
+    wire        inst_andi;
     wire        inst_or;
+    wire        inst_ori;
     wire        inst_xor;
     wire        inst_slli_w;
     wire        inst_srli_w;
@@ -109,6 +119,7 @@ module ID(
     wire        inst_beq;
     wire        inst_bne;
     wire        inst_lu12i_w;
+    wire        inst_pcaddu12i_w;
 
 
     // register file signals
@@ -132,17 +143,13 @@ module ID(
     wire         src2_is_4;
 
     // alu control signals
-    wire [ 5: 0] alu_op;
+    wire [11: 0] alu_op;
 
     // alu 
     wire [31: 0] alu_src1   ;
     wire [31: 0] alu_src2   ;
 
     // reg file write
-    wire [ 4: 0] rf_raddr1;
-    wire [31: 0] rf_rdata1;
-    wire [ 4: 0] rf_raddr2;
-    wire [31: 0] rf_rdata2;
     wire         rf_we   ;
     wire [ 4: 0] rf_waddr;
     wire [31: 0] rf_wdata;
@@ -156,6 +163,7 @@ module ID(
     wire         mem_we;          // memory write enable
     wire         mem_re;          // memory read enable
     wire         res_from_mem;
+    wire         read_rj;
 
     //offsets
     wire [31: 0] br_offs;
@@ -168,7 +176,7 @@ module ID(
 
 /* =========== connect signals =========== */    
 
-    assign stall_current_stage = 0; //todo 流水暂时不停
+    assign stall_current_stage = 1'b0; //todo 流水暂时不停
 
     // load msg from inst
     assign op_31_26 = inst[31:26];
@@ -261,7 +269,7 @@ module ID(
     assign jirl_offs = {{14{i16[15]}}, i16[15:0], 2'b0};
 
     // assign flags
-    assign src_reg_is_rd = inst_beq |
+    assign src_reg_is_rd = inst_beq | // 第二个操作数是rd
                            inst_bne |
                            inst_st_w;
     assign src1_is_pc    = inst_jirl |
@@ -280,6 +288,9 @@ module ID(
     assign mem_we        = inst_st_w;           //需要写内存
     assign mem_re        = inst_ld_w;           //需要读内存
     assign dest          = dst_is_r1 ? 5'd1 : rd;
+    assign read_rj       = ~inst_b & ~inst_bl & ~inst_lu12i_w & ~inst_pcaddu12i_w;
+
+
 
     // rf ctrl signals
     assign rf_raddr1 = rj;
@@ -289,8 +300,24 @@ module ID(
 
 
 
-    assign rj_value  = rf_rdata1; 
-    assign rkd_value = rf_rdata2;
+    assign rj_value  = read_rj & (rf_raddr1 != 0) ? 
+                        rf_we_out & (rf_waddr_out == rf_raddr1) ? 
+                            rf_wdata_ex :
+                        rf_we_mem & (rf_waddr_mem == rf_raddr1) ?
+                            rf_wdata_mem :
+                        rf_we_wb & (rf_waddr_wb == rf_raddr1) ?
+                            rf_wdata_wb : 
+                        rf_rdata1 :
+                    rf_rdata1;
+    assign rkd_value = ~src2_is_imm & (rf_raddr2 != 0) ? 
+                        rf_we_out & (rf_waddr_out == rf_raddr2) ? 
+                            rf_wdata_ex :
+                        rf_we_mem & (rf_waddr_mem == rf_raddr2) ?
+                            rf_wdata_mem :
+                        rf_we_wb & (rf_waddr_wb == rf_raddr2) ?
+                            rf_wdata_wb : 
+                        rf_rdata2 :
+                    rf_rdata2;
 
     assign rj_eq_rd = (rj_value == rkd_value);
     assign branch_flag = inst_beq  &&  rj_eq_rd

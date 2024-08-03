@@ -48,7 +48,7 @@ module MMU(
 
     // control enable
     assign base_ram_be_n = 4'b0; 
-    assign base_ram_ce_n = 1'b0;
+    assign base_ram_ce_n = 1'b0 ? 1'b1 : 1'b0;
     assign base_ram_oe_n = 1'b0;
     assign base_ram_we_n = 1'b1;
 
