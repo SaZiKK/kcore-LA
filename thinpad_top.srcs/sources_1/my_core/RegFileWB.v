@@ -1,4 +1,4 @@
-module WB(
+module RegFileWB(
     input  wire [ 4: 0] reg_waddr      ,
     input  wire         reg_we         ,
     input  wire [31: 0] alu_result     ,

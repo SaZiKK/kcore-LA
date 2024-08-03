@@ -1,7 +1,7 @@
 module EX (
     input  wire         clk,
     input  wire         rst,
-    input  wire         stall_current_stage,
+    output  wire         stall_current_stage,
     input  wire         stall_next_stage,
 
     input  wire [31: 0] alu_src1,

@@ -310,8 +310,6 @@ module ID(
     assign data_ram_we    = mem_we;
     assign data_ram_wdata = rkd_value;
 
-    assign mem_result     = data_sram_rdata;
-
 IDEX idex(
     .clk                 ( clk                 ),
     .rst                 ( rst                 ),

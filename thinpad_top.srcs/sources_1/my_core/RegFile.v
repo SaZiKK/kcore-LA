@@ -1,4 +1,4 @@
-module regfile(
+module RegFile(
     input  wire        clk,
     // READ PORT 1
     input  wire [ 4:0] raddr1,
