@@ -10,6 +10,10 @@ module ID(
     output wire         branch_flag,
     output wire [31: 0] branch_addr,
 
+    output wire [31: 0] alu_src1_out,
+    output wire [31: 0] alu_src2_out,
+    output wire [ 5: 0] alu_op_out,
+
     output wire [ 4: 0] reg_raddr1,
     input wire  [31: 0] reg_rdata1,
 
@@ -18,17 +22,6 @@ module ID(
 
     output wire [ 4: 0] reg_waddr_out,
     output wire         reg_we_out,
-
-    input  wire [31: 0] reg_wdata_ex ,
-    input  wire [ 4: 0] reg_waddr_mem,
-    input  wire         reg_we_mem   ,
-    input  wire [31: 0] reg_wdata_mem,
-    input  wire [ 4: 0] reg_waddr_wb ,
-    input  wire         reg_we_wb    ,
-    input  wire [31: 0] reg_wdata_wb ,
-
-    input  wire         mem_load_ex,
-    input  wire         mem_load_mem,
 
     output wire [31: 0] pc_out,
 
@@ -121,7 +114,7 @@ module ID(
     // register file signals
     wire [ 4: 0] rd;
     wire [ 4: 0] rj;
-    wire [ 4:0] rk;
+    wire [ 4: 0] rk;
 
     // immediate nums 
     wire [31: 0] imm; // 32-bit immediate num, directly for alu
@@ -139,20 +132,20 @@ module ID(
     wire         src2_is_4;
 
     // alu control signals
-    wire [31: 0] alu_op;
+    wire [ 5: 0] alu_op;
 
     // alu 
-    wire [31:0] alu_src1   ;
-    wire [31:0] alu_src2   ;
+    wire [31: 0] alu_src1   ;
+    wire [31: 0] alu_src2   ;
 
     // reg file write
-    wire [ 4:0] rf_raddr1;
-    wire [31:0] rf_rdata1;
-    wire [ 4:0] rf_raddr2;
-    wire [31:0] rf_rdata2;
-    wire        rf_we   ;
-    wire [ 4:0] rf_waddr;
-    wire [31:0] rf_wdata;
+    wire [ 4: 0] rf_raddr1;
+    wire [31: 0] rf_rdata1;
+    wire [ 4: 0] rf_raddr2;
+    wire [31: 0] rf_rdata2;
+    wire         rf_we   ;
+    wire [ 4: 0] rf_waddr;
+    wire [31: 0] rf_wdata;
 
     // other flags
     wire         src1_is_pc;
@@ -174,6 +167,8 @@ module ID(
 
 
 /* =========== connect signals =========== */    
+
+    assign stall_current_stage = 0; //todo 流水暂时不停
 
     // load msg from inst
     assign op_31_26 = inst[31:26];
@@ -296,8 +291,6 @@ module ID(
 
     assign rj_value  = rf_rdata1; 
     assign rkd_value = rf_rdata2;
-
-    assign stall_current_stage = 1'b1; //todo 暂时不停
 
     assign rj_eq_rd = (rj_value == rkd_value);
     assign branch_flag = inst_beq  &&  rj_eq_rd

@@ -33,6 +33,8 @@ module EX (
 
 );
 
+    assign stall_current_stage = 0; // EX不停
+
     alu alu(
         .alu_op     ( alu_op         ),
         .alu_src1   ( alu_src1       ),

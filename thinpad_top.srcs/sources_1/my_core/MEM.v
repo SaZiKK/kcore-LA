@@ -13,7 +13,7 @@ module MEM(
 
     input  wire [ 4: 0] reg_waddr,
     input  wire         reg_we,
-    input  wire [31: 0] result,
+    input  wire [31: 0] alu_result,
 
     output wire [31: 0] data_ram_vaddr_out,
     output wire [31: 0] data_ram_wdata_out,
@@ -34,11 +34,12 @@ module MEM(
 
     output wire [ 4: 0] reg_waddr_out,
     output wire         reg_we_out,
-    output wire [31: 0] result_out
+    output wire [31: 0] alu_result_out
 );
 
     assign stall_current_stage = 0; // 访存流水不停
 
+    // 不做处理
     assign data_ram_vaddr_v  = data_ram_vaddr;
     assign data_ram_wdata_v  = data_ram_wdata;
     assign data_ram_be_v     = data_ram_be;
@@ -54,7 +55,7 @@ module MEM(
 
         .reg_waddr_in        ( reg_waddr           ),
         .reg_we_in           ( reg_we              ),
-        .result_in           ( result              ),
+        .result_in           ( alu_result          ),
 
         .data_ram_vaddr_in   ( data_ram_vaddr_v    ),
         .data_ram_wdata_in   ( data_ram_wdata_v    ),
@@ -72,7 +73,7 @@ module MEM(
 
         .reg_waddr_out       ( reg_waddr_out       ),
         .reg_we_out          ( reg_we_out          ),
-        .result_out          ( result_out          ),
+        .result_out          ( alu_result_out      ),
         
         .data_ram_rdata_in   ( data_ram_rdata      ),
         .data_ram_rdata_out  ( data_ram_rdata_out  )
