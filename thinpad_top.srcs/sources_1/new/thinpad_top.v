@@ -134,8 +134,6 @@ module thinpad_top(
     assign clk = clk_11M0592;
     
     MMU mmu  (
-        .clk                 ( clk                ),  // input
-        .rst                 ( reset_btn          ),  // input
         // virtual interface marked with "!" 
         .inst_ram_vaddr      ( inst_ram_vaddr     ),  // !input
         .inst_ram_rdata      ( inst_ram_rdata     ),  // !outpu
