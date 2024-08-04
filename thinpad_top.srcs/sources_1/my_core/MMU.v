@@ -41,6 +41,8 @@ module MMU(
     // inst
     assign inst_ram_rdata = base_ram_data; // 暂时认为base只读
 
+    assign base_ram_data  = 32'bz; // 输出
+
     // data
     assign data_ram_rdata = ext_ram_data;
 

@@ -7,7 +7,7 @@ module IDEX(
     input  wire [31: 0] pc_in,
     input  wire [31: 0] alu_src1_in,
     input  wire [31: 0] alu_src2_in,
-    input  wire [11: 0] alu_op_in,
+    input  wire [12: 0] alu_op_in,
     input  wire [ 4: 0] rf_waddr_in,
     input  wire         rf_we_in,
 
@@ -20,7 +20,7 @@ module IDEX(
     output wire [31: 0] pc_out,
     output wire [31: 0] alu_src1_out,
     output wire [31: 0] alu_src2_out,
-    output wire [11: 0] alu_op_out,
+    output wire [12: 0] alu_op_out,
     output wire [ 4: 0] rf_waddr_out,
     output wire         rf_we_out,
 
@@ -46,7 +46,7 @@ module IDEX(
         alu_src2_in, alu_src2_out
     );
 
-    PipelineCtrl #(12) alu_op_dff(
+    PipelineCtrl #(13) alu_op_dff(
         clk, rst, stall_current_stage, stall_next_stage,
         alu_op_in, alu_op_out
     );

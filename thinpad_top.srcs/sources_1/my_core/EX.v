@@ -6,7 +6,7 @@ module EX (
 
     input  wire [31: 0] alu_src1,
     input  wire [31: 0] alu_src2,
-    input  wire [11: 0] alu_op,
+    input  wire [12: 0] alu_op,
 
     output wire [31: 0] alu_result_out,
 
@@ -40,7 +40,7 @@ module EX (
         .alu_op     ( alu_op         ),
         .alu_src1   ( alu_src1       ),
         .alu_src2   ( alu_src2       ),
-        .alu_result ( alu_result )
+        .alu_result ( alu_result     )
     );
 
     assign data_ram_vaddr = alu_result;

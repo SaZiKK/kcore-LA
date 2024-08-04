@@ -12,7 +12,7 @@ module ID(
 
     output wire [31: 0] alu_src1_out,
     output wire [31: 0] alu_src2_out,
-    output wire [11: 0] alu_op_out,
+    output wire [12: 0] alu_op_out,
 
     output wire [ 4: 0] rf_raddr1,
     input wire  [31: 0] rf_rdata1,
@@ -146,7 +146,7 @@ module ID(
     wire         src2_is_4;
 
     // alu control signals
-    wire [11: 0] alu_op;
+    wire [12: 0] alu_op;
 
     // alu 
     wire [31: 0] alu_src1   ;

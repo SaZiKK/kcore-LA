@@ -87,7 +87,7 @@ module thinpad_top(
 
     wire [31: 0] alu_src1_id;
     wire [31: 0] alu_src2_id;
-    wire [11: 0] alu_op_id;
+    wire [12: 0] alu_op_id;
     
     wire         branch_flag;
     wire [31: 0] branch_addr;
@@ -133,8 +133,6 @@ module thinpad_top(
 
     assign clk = clk_50M;
     
-    assign base_ram_data  = 32'bz; // 输出
-
     MMU mmu  (
         // virtual interface marked with "!" 
         .inst_ram_vaddr      ( inst_ram_vaddr     ),  // !input
