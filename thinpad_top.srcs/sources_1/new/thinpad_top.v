@@ -131,7 +131,7 @@ module thinpad_top(
 
 /* =========== connect signals =========== */
 
-    assign clk = clk_50M;
+    assign clk = clk_11M0592;
     
     MMU mmu  (
         // virtual interface marked with "!" 

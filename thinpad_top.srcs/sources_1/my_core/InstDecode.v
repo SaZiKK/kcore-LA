@@ -155,7 +155,6 @@ module ID(
     // reg file write
     wire         rf_we   ;
     wire [ 4: 0] rf_waddr;
-    wire [31: 0] rf_wdata;
 
     // other flags
     wire         src1_is_pc;
@@ -165,7 +164,6 @@ module ID(
     wire         gr_we;           // general register write enable
     wire         mem_we;          // memory write enable
     wire         mem_re;          // memory read enable
-    wire         res_from_mem;
     wire         read_rj;
 
     //offsets
@@ -346,8 +344,7 @@ module ID(
     assign data_ram_we    = mem_we;
     assign data_ram_wdata = rkd_value;
 
-    assign stall_current_stage = (mem_load_ex & (~src2_is_imm | inst_st_w) & (rf_waddr_out == rf_raddr2)) |
-                                 (mem_load_mem & (~src2_is_imm | inst_st_w) & (rf_waddr_mem == rf_raddr2)); 
+    assign stall_current_stage = inst_ld_w;
 
 IDEX idex(
     .clk                 ( clk                 ),

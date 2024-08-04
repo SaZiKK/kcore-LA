@@ -1,5 +1,5 @@
 module alu(
-  input  wire [11:0] alu_op,
+  input  wire [12:0] alu_op,
   input  wire [31:0] alu_src1,
   input  wire [31:0] alu_src2,
   output wire [31:0] alu_result
@@ -71,7 +71,7 @@ assign sltu_result[0]    = ~adder_cout;
 
 // bitwise operation
 assign and_result = alu_src1 & alu_src2;
-assign or_result  = alu_src1 | alu_src2 | alu_result;
+assign or_result  = alu_src1 | alu_src2;
 assign nor_result = ~or_result;
 assign xor_result = alu_src1 ^ alu_src2;
 assign lui_result = alu_src2;

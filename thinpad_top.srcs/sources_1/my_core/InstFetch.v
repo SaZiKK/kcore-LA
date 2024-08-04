@@ -38,6 +38,8 @@ module IF(
     always @(posedge clk ) begin
         if(rst)
             inst_out <= 0;
+        else if (branch_flag | stall_next_stage)
+            inst_out <= 32'h00000000; // nop
         else
             inst_out <= inst;
     end
