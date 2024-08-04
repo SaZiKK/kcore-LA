@@ -1,4 +1,6 @@
 module MMU(
+    input  wire         clk,
+    input  wire         rst,
     // from cpu
     input  wire [31: 0] inst_ram_vaddr, 
     output wire [31: 0] inst_ram_rdata,
@@ -30,13 +32,16 @@ module MMU(
     wire [19: 0] inst_ram_paddr;
     wire [19: 0] data_ram_paddr;
 
+    reg [19: 0] data_ram_paddr_delay;
+    reg [31: 0] ext_ram_data_delay;
+
     // 按字长寻址，字长32位，2^2*8 = 32，忽略低两位地址
     // 直接映射，va = pa
     assign inst_ram_paddr = inst_ram_vaddr[21: 2];
     assign data_ram_paddr = data_ram_vaddr[21: 2];
 
     assign base_ram_addr  = inst_ram_paddr;
-    assign ext_ram_addr   = data_ram_paddr;
+    assign ext_ram_addr   = ext_ram_ce_n ? data_ram_paddr_delay : data_ram_paddr;
 
     // inst
     assign inst_ram_rdata = base_ram_data; // 暂时认为base只读
@@ -46,7 +51,8 @@ module MMU(
     // data
     assign data_ram_rdata = ext_ram_data;
 
-    assign ext_ram_data = data_ram_ce & data_ram_we ? data_ram_wdata : 32'bz;
+    assign ext_ram_data = data_ram_ce & data_ram_we ? data_ram_wdata :
+                          ext_ram_ce_n ? ext_ram_data_delay : 32'bz;
 
     // control enable
     assign base_ram_be_n = 4'b0; 
@@ -58,5 +64,19 @@ module MMU(
     assign ext_ram_ce_n = ~data_ram_ce;
     assign ext_ram_oe_n = ~data_ram_oe;
     assign ext_ram_we_n = ~data_ram_we;
+
+    always @(posedge clk ) begin
+        if(rst)
+            data_ram_paddr_delay <= 32'h0000_0000;
+        else 
+            data_ram_paddr_delay <= data_ram_paddr;
+    end
+
+    always @(posedge clk ) begin
+        if(rst)
+            ext_ram_data_delay <= 32'h0000_0000;
+        else 
+            ext_ram_data_delay <= ext_ram_data;
+    end
 
 endmodule
