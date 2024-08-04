@@ -334,7 +334,7 @@ module ID(
                       || inst_jirl
                       || inst_bl
                       || inst_b;
-    assign branch_addr = (inst_beq || inst_bne || inst_bl || inst_b) ? (pc + br_offs) :
+    assign branch_addr = (inst_beq || inst_bne || inst_bl || inst_b) ? (pc + br_offs - 4) :
                                                    /*inst_jirl*/ (rj_value + jirl_offs);
         
     assign alu_src1 = src1_is_pc  ? pc[31:0] : rj_value;
