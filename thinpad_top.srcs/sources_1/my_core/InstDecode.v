@@ -316,7 +316,7 @@ module ID(
                             rf_wdata_wb : 
                         rf_rdata1 :
                     rf_rdata1;
-    assign rkd_value = ~src2_is_imm | inst_st_w & (rf_raddr2 != 0) ? 
+    assign rkd_value = ~src2_is_imm | inst_st_w | inst_bne & (rf_raddr2 != 0) ? 
                         rf_we_out & (rf_waddr_out == rf_raddr2) ? 
                             rf_wdata_ex :
                         rf_we_mem & (rf_waddr_mem == rf_raddr2) ?
@@ -344,7 +344,8 @@ module ID(
     assign data_ram_we    = mem_we;
     assign data_ram_wdata = rkd_value;
 
-    assign stall_current_stage = inst_ld_w;
+    assign stall_current_stage = (mem_load_ex & (~src2_is_imm | inst_st_w) & (rf_waddr_out == rf_raddr2)) |
+                                 (mem_load_mem & (~src2_is_imm | inst_st_w) & (rf_waddr_mem == rf_raddr2)); 
 
 IDEX idex(
     .clk                 ( clk                 ),
